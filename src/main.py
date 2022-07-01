@@ -91,7 +91,7 @@ if __name__=="__main__":
     parser.add_argument('--default_root_dir', type=str, default="./", help="The default directory for logs & checkpoints.")
     parser.add_argument('--data_dir', type=str, default="data", help="The directory which contains data files.")
     parser.add_argument('--max_len', type=int, default=512, help="The maxmium length of each sequence.")
-    parser.add_argument('--num_epochs', type=int, default=10, help="The number of total epochs.")
+    parser.add_argument('--num_epochs', type=int, default=5, help="The number of total epochs.")
     parser.add_argument('--train_batch_size', type=int, default=16, help="The batch size for training.")
     parser.add_argument('--eval_batch_size', type=int, default=8, help="The batch size for evaluation.")
     parser.add_argument('--num_workers', type=int, default=4, help="The number of workers for data loading.")

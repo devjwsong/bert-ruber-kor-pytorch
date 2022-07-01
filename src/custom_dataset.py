@@ -42,9 +42,6 @@ class CustomDataset(Dataset):
                 query, pos = turn
                 query = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(query))
                 pos = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(pos))
-
-                # Saving for extra history.
-                hists += [query, pos]
                 
                 # Negative sampling.
                 dial_id = random.choice(dial_ids)
@@ -68,7 +65,7 @@ class CustomDataset(Dataset):
                 query_context = [args.cls_id]
                 for s in range(max(len(hists)-args.num_hists, 0), len(hists)):
                     memory = list(chain.from_iterable(hists[s:]))
-                    seq_len = 1 + memory + 1 + len(query) + 1
+                    seq_len = 1 + len(memory) + 1 + len(query) + 1
                     if seq_len <= args.max_len:
                         query_context += (memory + [args.sep_id])
                         break
@@ -90,6 +87,9 @@ class CustomDataset(Dataset):
                 self.labels.append(0)
                 query_lens.append(len(query_ids))
                 res_lens.append(len(neg_ids))
+
+                # Saving for extra history.
+                hists += [query, pos]
         
         assert len(self.query_ids) == len(self.res_ids), "The numbers of queries and responses are different."
         assert len(self.query_ids) == len(self.labels), "The numbers of queries and labels are different."
