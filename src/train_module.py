@@ -4,8 +4,6 @@ from pytorch_lightning import seed_everything
 from argparse import Namespace
 from torch import nn
 from sklearn.metrics import f1_score
-from torch.optim import Optimizer
-from torch.optim.lr_scheduler import LambdaLR
 from bert_ruber import MLPNetwork
 
 import torch
