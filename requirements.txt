@@ -2,3 +2,4 @@ torch==1.11.0
 transformers==4.16.2
 pytorch-lightning==1.5.10
 scikit-learn==1.0.2
+openpyxl==3.0.10

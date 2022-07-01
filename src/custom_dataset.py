@@ -17,43 +17,33 @@ class CustomDataset(Dataset):
         # Loading the data.
         with open(file, 'r') as f:
             data = json.load(f)
+        random.seed(args.seed)
+        data = data[:10]
 
         # Iterating & pre-processing each dialogue.
-        for o, obj in enumerate(tqdm(data)):
+        for d, dial in enumerate(tqdm(data)):
             # Making candidate index list for negative sampling.
             dial_ids = list(range(len(data)))
-            dial_ids = dial_ids[:o] + dial_ids[o+1:]
+            dial_ids = dial_ids[:d] + dial_ids[d+1:]
 
-            assert o not in dial_ids, f"The current dialogue should not be in the candidate dialogue list."
+            assert d not in dial_ids, f"The current dialogue should not be in the candidate dialogue list."
             assert len(dial_ids) == len(data)-1, f"The candidate size should be the total size - 1."
+            
+            # Pre-tokenization.
+            hists = [tokenizer.convert_tokens_to_ids(tokenizer.tokenize(turn)) for turn in dial]
 
-            pers, dial = obj['persona'], obj['dialogue']
-            
-            # The context for system responses. If the persona is not used, this becomes a single [CLS] token.
-            res_context = [args.cls_id]
-            if args.use_persona:
-                for per in pers:
-                    res_context += tokenizer.convert_tokens_to_ids(tokenizer.tokenize(per))
-                res_context += [args.sep_id]
-            
             # Processing each turn.
-            hists = []
-            for turn in dial:
-                query, pos = turn
-                query = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(query))
-                pos = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(pos))
-                
+            for t in range(1, len(hists)):
+                query, pos = hists[t-1], hists[t]
+
                 # Negative sampling.
                 dial_id = random.choice(dial_ids)
-                cands = []
-                for cand_turn in data[dial_id]['dialogue']:
-                    cands += cand_turn
-                neg = random.choice(cands)
+                neg = random.choice(data[dial_id])
                 neg = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(neg))
 
-                # First, making positive & negative samples.
-                pos_ids = res_context + pos + [args.sep_id]
-                neg_ids = res_context + neg + [args.sep_id]
+                # Making positive & negative sample.
+                pos_ids = [args.cls_id] + pos + [args.sep_id]
+                neg_ids = [args.cls_id] + neg + [args.sep_id]
                 if len(pos_ids) > args.max_len:
                     pos_ids = pos_ids[:args.max_len]
                     pos_ids[-1] = args.sep_id
@@ -63,8 +53,8 @@ class CustomDataset(Dataset):
 
                 # Next, the context for user query. If no extra history is used, this becomes a single [CLS] token.
                 query_context = [args.cls_id]
-                for s in range(max(len(hists)-args.num_hists, 0), len(hists)):
-                    memory = list(chain.from_iterable(hists[s:]))
+                for s in range(max(t-1-args.num_hists, 0), t-1):
+                    memory = list(chain.from_iterable(hists[s:t-1]))
                     seq_len = 1 + len(memory) + 1 + len(query) + 1
                     if seq_len <= args.max_len:
                         query_context += (memory + [args.sep_id])
@@ -74,7 +64,7 @@ class CustomDataset(Dataset):
                 if len(query_ids) > args.max_len:
                     query_ids = query_ids[:args.max_len]
                     query_ids[-1] = args.sep_id
-                
+
                 # The final pre-processed results.
                 self.query_ids.append(query_ids)
                 self.res_ids.append(pos_ids)
@@ -87,9 +77,6 @@ class CustomDataset(Dataset):
                 self.labels.append(0)
                 query_lens.append(len(query_ids))
                 res_lens.append(len(neg_ids))
-
-                # Saving for extra history.
-                hists += [query, pos]
         
         assert len(self.query_ids) == len(self.res_ids), "The numbers of queries and responses are different."
         assert len(self.query_ids) == len(self.labels), "The numbers of queries and labels are different."

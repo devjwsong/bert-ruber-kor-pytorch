@@ -17,14 +17,12 @@ def run(args):
     
     # Setting the datasets & dataloaders.
     print("Loading datasets & dataloaders...")
-    train_set = CustomDataset(args, f"{args.data_dir}/Ko_persona_train_corrected.json", module.tokenizer)
-    valid_set = CustomDataset(args, f"{args.data_dir}/Ko_persona_split_valid_human_annotated.json", module.tokenizer)
-    test_set = CustomDataset(args, f"{args.data_dir}/Ko_persona_split_test_human_annotated.json", module.tokenizer)
+    train_set = CustomDataset(args, f"{args.data_dir}/train_dials.json", module.tokenizer)
+    eval_set = CustomDataset(args, f"{args.data_dir}/eval_dials.json", module.tokenizer)
     ppd = PadCollate(args.pad_id)
     
     train_loader = DataLoader(train_set, batch_size=args.train_batch_size, collate_fn=ppd.pad_collate, shuffle=True, num_workers=args.num_workers, pin_memory=True)
-    valid_loader = DataLoader(valid_set, batch_size=args.eval_batch_size, collate_fn=ppd.pad_collate, num_workers=args.num_workers, pin_memory=True)
-    test_loader = DataLoader(test_set, batch_size=args.eval_batch_size, collate_fn=ppd.pad_collate, num_workers=args.num_workers, pin_memory=True)
+    eval_loader = DataLoader(eval_set, batch_size=args.eval_batch_size, collate_fn=ppd.pad_collate, num_workers=args.num_workers, pin_memory=True)
         
     # Calculating the number of total training steps & warmup steps.
     num_batches = len(train_loader)
@@ -72,12 +70,8 @@ def run(args):
     
     # Training.
     print("Train starts.")
-    trainer.fit(model=module, train_dataloaders=train_loader, val_dataloaders=valid_loader)
+    trainer.fit(model=module, train_dataloaders=train_loader, val_dataloaders=eval_loader)
     print("Training done.")
-    
-    # Testing.
-    print("Test starts.")
-    trainer.test(test_dataloaders=test_loader, ckpt_path='best')
 
     print("GOOD BYE.")
     
@@ -104,7 +98,6 @@ if __name__=="__main__":
     parser.add_argument('--w2_size', type=int, default=256, help="The size of w2 embedding.")
     parser.add_argument('--w3_size', type=int, default=64, help="The size of w3 embedding.")
     parser.add_argument('--num_hists', type=int, default=0, help="The number of extra histories.")
-    parser.add_argument('--use_persona', action='store_true', help="Using persona or not?")
 
     args = parser.parse_args()
     
