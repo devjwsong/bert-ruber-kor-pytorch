@@ -3,7 +3,7 @@ This repository is the Korean implementation of **BERT-RUBER: Better Automatic E
 
 The project includes sample dialogue data, training/evaluation code, and a BERT-RUBER class module for actual inference.
 
-The data which is used here is from "한국어 감정 정보가 포함된 연속적 대화 데이터셋"[[2]](#2), which can be downloaded from [here](https://aihub.or.kr/opendata/keti-data/recognition-laguage/KETI-02-010). (You might need additional registration & application for download.)
+The data which is used here is "한국어 감정 정보가 포함된 연속적 대화 데이터셋"[[2]](#2), which can be downloaded from [here](https://aihub.or.kr/opendata/keti-data/recognition-laguage/KETI-02-010). (You might need additional registration & application for download.)
 
 <br/>
 
