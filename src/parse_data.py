@@ -20,6 +20,8 @@ def run(args):
         if r > 0:
             tag, utter = row['Unnamed: 0'], row['Unnamed: 1']
             is_start = True if tag == tag else False
+            if utter != utter:
+                continue
 
             if is_start:
                 if len(dial) > 0:

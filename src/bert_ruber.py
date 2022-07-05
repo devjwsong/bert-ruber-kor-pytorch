@@ -80,16 +80,12 @@ class BertRuber(nn.Module):
         self.sep_token = self.tokenizer.sep_token
         self.pad_token = self.tokenizer.pad_token
         self.unk_token = self.tokenizer.unk_token
-        self.sp1_token = self.tokenizer.additional_special_tokens[0]
-        self.sp2_token = self.tokenizer.additional_special_tokens[1]
         
         vocab = self.tokenizer.get_vocab()
         self.cls_id = vocab[self.cls_token]
         self.sep_id = vocab[self.sep_token]
         self.pad_id = vocab[self.pad_token]
         self.unk_id = vocab[self.unk_token]
-        self.sp1_id = vocab[self.sp1_token]
-        self.sp2_id = vocab[self.sp2_token]
         
         print("BERT-RUBER ready.")
         
@@ -153,16 +149,12 @@ class BertRuber(nn.Module):
         
         return torch.LongTensor(query_ids)  # (L)
     
-    def make_res(self, res, extra_info=[]) -> torch.Tensor:
+    def make_res(self, res) -> torch.Tensor:
         # Pre-tokenizing.
         res = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(res))
-        extra_info = [self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(info)) for info in extra_info]
 
         # Making response token ids.
-        res_context = [self.cls_id]
-        if len(extra_info) > 0:
-            res_context += (list(chain.from_iterable(extra_info)) + [self.sep_id])
-        res_ids = res_context + res + [self.sep_id]
+        res_ids = [self.cls_id] + res + [self.sep_id]
         if len(res_ids) > self.max_len:
             res_ids = res_ids[:self.max_len]
             res_ids[-1] = self.sep_id
@@ -175,12 +167,11 @@ class BertRuber(nn.Module):
         
         return scores
     
-    def forward(self, queries, answers, predictions, hists, extra_infos, batch_size=1, ref_weight=0.5, normalize=True):
+    def forward(self, queries, answers, predictions, hists, batch_size=1, ref_weight=0.5, normalize=True):
         # Checking the number of samples.
         assert len(queries) == len(answers), "The number of samples should be consistent between queries and answers"
         assert len(queries) == len(predictions), "The number of samples should be consistent between queries and predictions."
         assert len(queries) == len(hists), "The number of samples should be consistent between queries and dialogue histories."
-        assert len(queries) == len(extra_infos), "The number of samples should be consistent between queries and extra information lists."
         assert ref_weight >= 0.0 and ref_weight <= 1.0, "The reference score weights should be [0.0, 1.0]."
         
         # Pre-processing the data.
@@ -189,8 +180,8 @@ class BertRuber(nn.Module):
         num_samples = len(queries)
         for i in tqdm(range(num_samples)):
             query_ids = self.make_query(queries[i], hists[i])  # (L)
-            ref_ids = self.make_res(answers[i], extra_infos[i])  # (L)
-            pred_ids = self.make_res(predictions[i], extra_infos[i])  # (L)
+            ref_ids = self.make_res(answers[i])  # (L)
+            pred_ids = self.make_res(predictions[i])  # (L)
 
             query_ids_list.append(query_ids)
             ref_ids_list.append(ref_ids)
