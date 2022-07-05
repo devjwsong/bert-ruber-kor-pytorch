@@ -3,7 +3,7 @@ This repository is the Korean implementation of **BERT-RUBER: Better Automatic E
 
 The project includes sample dialogue data, training/evaluation code, and a BERT-RUBER class module for actual inference.
 
-The data which is used here is from "한국어 감정 정보가 포함된 연속적 대화 데이터셋"[[2]](#2), which can be downloaded from [here](https://aihub.or.kr/opendata/keti-data/recognition-laguage/KETI-02-010).
+The data which is used here is from "한국어 감정 정보가 포함된 연속적 대화 데이터셋"[[2]](#2), which can be downloaded from [here](https://aihub.or.kr/opendata/keti-data/recognition-laguage/KETI-02-010). (You might need additional registration & application for download.)
 
 <br/>
 
@@ -23,7 +23,7 @@ The detailed descriptions are as follows.
 
 <br/>
 
-You can skip the data parsing script and use your own dataset to train your models.
+You can skip the data parsing script and use your own dataset to train your models. 
 
 The details of how to prepare your data will be introduced in the later section.
 
@@ -81,6 +81,75 @@ The details of how to prepare your data will be introduced in the later section.
 ---
 
 ### How to run
+
+1. Install all required packages.
+
+   ```shell
+   pip install -r requirements.txt
+   ```
+
+   <br/>
+
+2. Parse the raw data into json format.
+
+   ```shell
+   sh exec_parse_data.sh
+   ```
+
+   If you don't need to use the default data, prepare your data files as follows.
+
+   ```
+   data (default name of data directory)
+   └--train_dials.json
+   └--eval_dials.json
+   ```
+
+   And each data file contains dialogues in a list form.
+
+   ```python
+   # For example...
+   [
+     [ # dialogue 1
+       "오늘 뭐 먹었니?",
+       "나는 치킨을 먹었어.",
+       "어디서 시켜먹었어?",
+       "우리 집 앞 치킨 집에서!"
+     ],
+     [  # dialogue 2
+       "날씨가 정말 좋다!",
+       "등산이라도 갈까?"
+     ],
+     ...
+   ]
+   ```
+
+   <br/>
+
+3. Train a BERT-RUBER model using a pre-trained BERT checkpoint.
+
+   ```shell
+   sh exec_train.sh
+   ```
+
+   <br/>
+
+4. Extract the fine-tuned checkpoint for later usage.
+
+   ```shell
+   sh exec_extract_ckpt.sh
+   ```
+
+<br/>
+
+---
+
+### Results
+
+<br/>
+
+---
+
+### Inference
 
 <br/>
 
