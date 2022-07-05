@@ -55,7 +55,7 @@ if __name__=='__main__':
     # Arguments for training.
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--seed', type=int, default=0, help="The random seed.")
+    parser.add_argument('--seed', type=int, default=555, help="The random seed.")
     parser.add_argument('--raw_data_path', type=str, required=True, help="The raw xlsx data file path.")
     parser.add_argument('--train_ratio', type=float, default=0.9, help="The ratio of train set to total data size.")
 

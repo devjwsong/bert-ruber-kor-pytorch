@@ -33,6 +33,49 @@ The details of how to prepare your data will be introduced in the later section.
 
 ### Arguments
 
+**Arguments for data parsing**
+
+| Argument        | Type    | Description                                | Default               |
+| --------------- | ------- | ------------------------------------------ | --------------------- |
+| `seed`          | `int`   | The random seed.                           | `555`                 |
+| `raw_data_path` | `str`   | The raw xlsx data file path.               | *YOU SHOULD SPECIFY.* |
+| `train_ratio`   | `float` | The ratio of train set to total data size. | `0.9`                 |
+
+<br/>
+
+**Arguments for training**
+
+| Argument           | Type    | Description                                                  | Default               |
+| ------------------ | ------- | ------------------------------------------------------------ | --------------------- |
+| `seed`             | `int`   | The random seed.                                             | `555`                 |
+| `model_path`       | `str`   | The pre-trained BERT checkpoint to fine-tune.                | *YOU SHOULD SPECIFY.* |
+| `default_root_dir` | `str`   | The default directory for logs & checkpoints.                | `"."`                 |
+| `data_dir`         | `str`   | The directory which contains data files.                     | `data`                |
+| `max_len`          | `int`   | The maximum length of each input.                            | `256`                 |
+| `num_epochs`       | `int`   | The number of total epochs.                                  | `5`                   |
+| `train_batch_size` | `int`   | The batch size for training.                                 | `32`                  |
+| `eval_batch_size`  | `int`   | The batch size for evaluation.                               | `16`                  |
+| `num_workers`      | `int`   | The number of workers for data loading.                      | `4`                   |
+| `warmup_ratio`     | `float` | The ratio of warmup steps to total training steps.           | `0.1`                 |
+| `max_grad_norm`    | `float` | The maximum value for gradient clipping.                     | `1.0`                 |
+| `learning_rate`    | `float` | The initial learning rate.                                   | `5e-5`                |
+| `gpus`             | `str`   | The indices of GPUs to use. To use multiple GPUs, use commas. (e.g. `"0, 1, 2, 3"`) | `"0"`                 |
+| `pooling`          | `str`   | The pooling method.                                          | *YOU SHOULD SPECIFY.* |
+| `w1_size`          | `int`   | The size of w1 embedding.                                    | `768`                 |
+| `w2_size`          | `int`   | The size of w2 embedding.                                    | `256`                 |
+| `w3_size`          | `int`   | The size of w3 embedding.                                    | `64`                  |
+| `num_hists`        | `int`   | The number of extra histories.                               | `0`                   |
+
+<br/>
+
+**Arguments for extracting a checkpoint**
+
+| Argument           | Type  | Description                                   | Default               |
+| ------------------ | ----- | --------------------------------------------- | --------------------- |
+| `default_root_dir` | `str` | The default directory for logs & checkpoints. | `"."`                 |
+| `log_idx`          | `int` | The lightning log index.                      | *YOU SHOULD SPECIFY.* |
+| `ckpt_file`        | `str` | The checkpoint file name to extract.          | *YOU SHOULD SPECIFY.* |
+
 <br/>
 
 ---
