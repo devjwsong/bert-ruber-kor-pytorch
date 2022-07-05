@@ -60,7 +60,7 @@ The details of how to prepare your data will be introduced in the later section.
 | `max_grad_norm`    | `float` | The maximum value for gradient clipping.                     | `1.0`                 |
 | `learning_rate`    | `float` | The initial learning rate.                                   | `5e-5`                |
 | `gpus`             | `str`   | The indices of GPUs to use. To use multiple GPUs, use commas. (e.g. `"0, 1, 2, 3"`) | `"0"`                 |
-| `pooling`          | `str`   | The pooling method.                                          | *YOU SHOULD SPECIFY.* |
+| `pooling`          | `str`   | The pooling method. (`"cls"`, `"mean"`, or `"max"`)          | *YOU SHOULD SPECIFY.* |
 | `w1_size`          | `int`   | The size of w1 embedding.                                    | `768`                 |
 | `w2_size`          | `int`   | The size of w2 embedding.                                    | `256`                 |
 | `w3_size`          | `int`   | The size of w3 embedding.                                    | `64`                  |
@@ -145,11 +145,94 @@ The details of how to prepare your data will be introduced in the later section.
 
 ### Results
 
+Here, I represent some of the results after training which are implemented with the pre-trained KLUE-BERT[[4]](#4) base model.
+
+| Pooling  | # of previous histories | Evaluation F1 score |
+| -------- | ----------------------- | ------------------- |
+| `"cls"`  | 0                       | 0.5000              |
+| `"cls"`  | 3                       | 0.7890              |
+| `"cls"`  | 5                       | 0.7753              |
+| `"mean"` | 0                       | 0.5000              |
+| `"mean"` | 3                       | 0.7984              |
+| `"mean"` | 5                       | 0.8021              |
+| `"max"`  | 0                       | 0.5015              |
+| `"max"`  | 3                       | 0.5000              |
+| `"max"`  | 5                       | 0.7465              |
+
 <br/>
 
 ---
 
 ### Inference
+
+Here is an example of how to use the inference module after extracting a fine-tuned checkpoint.
+
+I used `"klue-bert-base-256-mean"` checkpoint, which is trained with the mean pooling and max length 256 on the default setting.
+
+The output consists of three scores, which are the total score, unreferenced score, and referenced score.
+
+The total score is calculated by a weighted sum between the referenced score and the unreferenced score.
+
+If you want to control the weight, use the argument `ref_weight`.
+
+Here, to give a little more weight to the unreferenced score, I used `0.25`.
+
+In addition, if you evaluate multiple predictions, it is helpful to make normalize=True, to make the highest score into $1.0$ and the lowest one into $0.0$.
+
+Here, I evaluated only one prediction each, so I set `normalize=False`. 
+
+```python
+from src.bert_ruber import BertRuber
+import torch
+
+ckpt_path = "klue-bert-base-256-mean"
+device = torch.device('cuda:0')
+
+bert_ruber = BertRuber(ckpt_path, device)
+
+hists = [
+    "안녕? 뭐하고 있어?"
+    "나는 책 보고 있어.",
+    "무슨 책?"
+]
+answer = "내가 가장 좋아하는 SF 소설이야."  # Reference
+prediction1 = "그냥 잡지책!"  # Natural response
+prediction2 = "난 피자를 가장 좋아해."  # Unnatural response
+
+scores1 = bert_ruber(
+    queries=[hists[-1]],
+    answers=[answer],
+    predictions=[prediction1],
+    hists=hists[:-1],
+    batch_size=1, 
+    ref_weight=0.25, 
+    normalize=False
+)
+# Total score, Unreference score, Reference score.
+# (array([0.89053027]), array([0.99706751]), array([0.57091856]))
+print(scores1) 
+
+scores2 = bert_ruber(
+    queries=[hists[-1]],
+    answers=[answer],
+    predictions=[prediction2],
+    hists=hists[:-1],
+    batch_size=1, 
+    ref_weight=0.25, 
+    normalize=False
+)
+# (array([0.10987215]), array([0.00409106]), array([0.42721543]))
+print(scores2)
+
+```
+
+<br/>
+
+You can download some of pre-trained checkpoints from below links.
+
+- `"klue-bert-base-256-cls"` (`num_hists=5`, Evaluation F1: $0.7753$): https://drive.google.com/file/d/1jVNFD54bx5iyceB7eeo6z06WLU-W6bEF/view?usp=sharing
+- `"klue-bert-base-256-mean"` (`num_hists=5`, Evaluation F1: $0.8021$): https://drive.google.com/file/d/1-ZPewSL0AETvcTG1CWfNfmTy_agof5VF/view?usp=sharing
+- `"klue-bert-base-256-max"` (`num_hists=5`, Evaluation F1: $0.7465$): https://drive.google.com/file/d/1BAh0nqdi05mgfg-SyYP4lKU-Bta4zae1/view?usp=sharing
 
 <br/>
 
@@ -162,3 +245,5 @@ The details of how to prepare your data will be introduced in the later section.
 <a id="2">[2]</a> 한국어 감정 정보가 포함된 연속적 대화 데이터셋. <a href="https://aihub.or.kr/opendata/keti-data/recognition-laguage/KETI-02-010">https://aihub.or.kr/opendata/keti-data/recognition-laguage/KETI-02-010</a>
 
 <a id="3">[3]</a> Tao, C., Mou, L., Zhao, D., & Yan, R. (2018, April). Ruber: An unsupervised method for automatic evaluation of open-domain dialog systems. In *Thirty-Second AAAI Conference on Artificial Intelligence*. <a href="https://arxiv.org/pdf/1701.03079.pdf">https://arxiv.org/pdf/1701.03079.pdf</a>
+
+<a id="4">[4]</a> Park, S., Moon, J., Kim, S., Cho, W. I., Han, J., Park, J., ... & Cho, K. (2021). Klue: Korean language understanding evaluation. *arXiv preprint arXiv:2105.09680*. <a href="https://arxiv.org/pdf/2105.09680.pdf">https://arxiv.org/pdf/2105.09680.pdf</a>
