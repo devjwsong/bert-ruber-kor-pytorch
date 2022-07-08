@@ -1,5 +1,5 @@
 # bert-ruber-kor-pytorch
-This repository is the Korean implementation of **BERT-RUBER: Better Automatic Evaluation of Open-Domain Dialogue Systems with Contextualized Embeddings**[[1]](#1).
+This repository is the Korean implementation of **BERT-RUBER**, introduced in **Better Automatic Evaluation of Open-Domain Dialogue Systems with Contextualized Embeddings**[[1]](#1).
 
 The project includes sample dialogue data, training/evaluation code, and a BERT-RUBER class module for actual inference.
 
