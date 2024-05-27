@@ -28,7 +28,7 @@ def extract(args):
     
     # Setting output directory.
     model_path = f"{model_path.split('/')[0]}-{model_path.split('/')[1]}"
-    output_dir = f"{ckpt_dir}/{model_path}-{max_len}-{pooling}"
+    output_dir = f"{ckpt_dir}/{model_path}-ruber-{max_len}-{pooling}"
     
     # Saving pre-trained config, tokenizer, and model as forms supported by Huggingface's transformers.
     config.save_pretrained(output_dir)

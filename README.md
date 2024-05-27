@@ -167,7 +167,17 @@ Here, I represent some of the results after training which are implemented with 
 
 Here is an example of how to use the inference module after extracting a fine-tuned checkpoint.
 
-I used `"klue-bert-base-256-mean"` checkpoint, which is trained with the mean pooling and max length 256 on the default setting.
+The extracted checkpoint can be uploaded to your HuggingFace's Hub repository for the later usage.
+
+I'm also providing 3 trained models as follows:
+
+- https://huggingface.co/devjwsong/klue-bert-base-ruber-256-cls
+- https://huggingface.co/devjwsong/klue-bert-base-ruber-256-mean
+- https://huggingface.co/devjwsong/klue-bert-base-ruber-256-max
+
+<br/>
+
+The following example is showing how to use `"klue-bert-base-ruber-256-mean"` checkpoint, which is trained with the mean pooling and max length 256 on the default setting.
 
 The output consists of three scores, which are the total score, unreferenced score, and referenced score.
 
@@ -185,7 +195,7 @@ Here, I evaluated only one prediction each, so I set `normalize=False`.
 from src.bert_ruber import BertRuber
 import torch
 
-ckpt_path = "klue-bert-base-256-mean"
+ckpt_path = "devjwsong/klue-bert-base-ruber-256-mean"  # Any checkpoint you trained is available.
 device = torch.device('cuda:0')
 
 bert_ruber = BertRuber(ckpt_path, device)
@@ -223,16 +233,7 @@ scores2 = bert_ruber(
 )
 # (array([0.10987215]), array([0.00409106]), array([0.42721543]))
 print(scores2)
-
 ```
-
-<br/>
-
-You can download some of pre-trained checkpoints from below links.
-
-- `"klue-bert-base-256-cls"` (`num_hists=5`, Evaluation F1: $0.7753$): https://drive.google.com/file/d/1jVNFD54bx5iyceB7eeo6z06WLU-W6bEF/view?usp=sharing
-- `"klue-bert-base-256-mean"` (`num_hists=5`, Evaluation F1: $0.8021$): https://drive.google.com/file/d/1-ZPewSL0AETvcTG1CWfNfmTy_agof5VF/view?usp=sharing
-- `"klue-bert-base-256-max"` (`num_hists=5`, Evaluation F1: $0.7465$): https://drive.google.com/file/d/1BAh0nqdi05mgfg-SyYP4lKU-Bta4zae1/view?usp=sharing
 
 <br/>
 

@@ -1,4 +1,5 @@
 from transformers import AutoModel, AutoTokenizer
+from huggingface_hub import hf_hub_download
 from torch import nn
 from torch.nn import functional as F
 from itertools import chain
@@ -61,6 +62,8 @@ class BertRuber(nn.Module):
         self.device = device
         self.tokenizer = AutoTokenizer.from_pretrained(ckpt_path)
         self.bert = AutoModel.from_pretrained(ckpt_path).to(self.device)
+        hf_hub_download(repo_id=ckpt_path, filename="MLPNetwork.pt", local_dir=".")
+
         self.mlp_net = MLPNetwork(
             self.bert.config.hidden_size,
             self.bert.config.w1_size,
@@ -68,7 +71,7 @@ class BertRuber(nn.Module):
             self.bert.config.w3_size,
             num_classes=2,
         )
-        self.mlp_net.load_state_dict(torch.load(f"{ckpt_path}/MLPNetwork.pt"))
+        self.mlp_net.load_state_dict(torch.load("MLPNetwork.pt"))
         self.mlp_net = self.mlp_net.to(self.device)
         
         # Inference setting.
